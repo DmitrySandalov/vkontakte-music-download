@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
+
 # sudo apt-get install python-pip
 # sudo pip install pyvkoauth vkontakte
 
 from pyvkoauth import auth
 import vkontakte
 import urllib
+import re
 
 user_email = 'me@vk.com'  # edit
 user_password = 'mypassword'  # edit
@@ -22,9 +25,10 @@ counter = 0
 for i in music:
 
     url = i['url']
-    title = str(i['artist'] + " - " + i['title']).translate(None, '/') + ".mp3"
+    title = i['artist'] + " - " + i['title'] + ".mp3"
+    filename = re.sub('[/]', '', title)
 
-    print '[', counter, '/', len(music), ']', title
+    print '[', counter, '/', len(music), ']', filename.encode('utf-8')
     counter += 1
 
-    urllib.urlretrieve(url, title)
+    urllib.urlretrieve(url, filename)
