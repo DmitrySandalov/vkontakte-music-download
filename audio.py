@@ -22,7 +22,7 @@ counter = 0
 for i in music:
 
     url = i['url']
-    title = str(i['title']).translate(None, '/') + ".mp3"
+    title = str(i['artist'] + " - " + i['title']).translate(None, '/') + ".mp3"
 
     print '[', counter, '/', len(music), ']', title
     counter += 1
