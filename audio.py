@@ -8,9 +8,12 @@ import vkontakte
 import urllib
 import re
 import os.path
+import ConfigParser
 
-user_email = 'me@vk.com'  # edit
-user_password = 'mypassword'  # edit
+config = ConfigParser.RawConfigParser()
+config.read('config.ini')
+user_email = config.get('vk-auth', 'login')
+user_password = config.get('vk-auth', 'pass')
 group_id = 54935444  # edit
 data_source = 'wall'  # [wall|group_music]
 
