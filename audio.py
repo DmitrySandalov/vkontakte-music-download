@@ -70,7 +70,11 @@ def wget_music(music_dict):
     for song in music_dict:
         if not os.path.isfile(song['filename']):
             print song['filename']
-            urllib.urlretrieve(song['url'], song['filename'])
+            try:
+                urllib.urlretrieve(song['url'], song['filename'])
+            except KeyboardInterrupt:
+                os.remove(song['filename'])
+                sys.exit(1)
 
 
 def main():
