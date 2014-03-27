@@ -17,6 +17,7 @@ config = ConfigParser.RawConfigParser()
 config.read('config.ini')
 user_email = config.get('vk-auth', 'login')
 user_password = config.get('vk-auth', 'pass')
+counter = 0
 
 
 def prettify(fname):
@@ -35,11 +36,12 @@ def get_music(vk, wall, group_id):
 def get_group_music(vk, group_id):
     download = []
     music = vk.audio.get(gid=group_id)
+    songs_num = len(music)
     for i in music:
         filename = prettify(i['artist'] + " - " + i['title'] + ".mp3")
         download.append({'url': i['url'],
                          'filename': filename})
-    wget_music(download)
+    wget_music(download, total=songs_num)
 
 
 def get_wall_music(vk, group_id):
@@ -48,11 +50,11 @@ def get_wall_music(vk, group_id):
     music = vk.wall.get(owner_id=-(group_id), count=vk_max_count)
     songs_num = music[0]
     for i in xrange(0, songs_num / 100 + 1):
-        download += get_wall_music_more(vk, group_id,
+        download += get_wall_music_more(vk, group_id, songs_num,
                                         myoffset=i * vk_max_count)
 
 
-def get_wall_music_more(vk, group_id, myoffset=0):
+def get_wall_music_more(vk, group_id, songs_num, myoffset=0):
     download = []
     music = vk.wall.get(owner_id=-(group_id), count=100, offset=myoffset)
     for i in music[1:]:
@@ -63,13 +65,15 @@ def get_wall_music_more(vk, group_id, myoffset=0):
                                         att['audio']['title'] + ".mp3")
                     download.append({'url': att['audio']['url'],
                                      'filename': filename})
-    wget_music(download)
+    wget_music(download, total=songs_num)
 
 
-def wget_music(music_dict):
+def wget_music(music_dict, total):
+    global counter
     for song in music_dict:
+        counter += 1
         if not os.path.isfile(song['filename']):
-            print song['filename']
+            print "[", counter, "/", total, "]", song['filename']
             try:
                 urllib.urlretrieve(song['url'], song['filename'])
             except KeyboardInterrupt:
