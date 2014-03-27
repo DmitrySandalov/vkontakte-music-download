@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # sudo apt-get install python-pip
@@ -9,13 +10,13 @@ import urllib
 import re
 import os.path
 import ConfigParser
+import argparse
+import sys
 
 config = ConfigParser.RawConfigParser()
 config.read('config.ini')
 user_email = config.get('vk-auth', 'login')
 user_password = config.get('vk-auth', 'pass')
-group_id = 54935444  # edit
-data_source = 'wall'  # [wall|group_music]
 
 
 def prettify(fname):
@@ -24,14 +25,14 @@ def prettify(fname):
     return fname
 
 
-def get_music(vk):
-    if data_source == 'group_music':
-        get_group_music(vk)
-    elif data_source == 'wall':
-        get_wall_music(vk)
+def get_music(vk, wall, group_id):
+    if wall:
+        get_wall_music(vk, group_id)
+    elif not wall:
+        get_group_music(vk, group_id)
 
 
-def get_group_music(vk):
+def get_group_music(vk, group_id):
     download = []
     music = vk.audio.get(gid=group_id)
     for i in music:
@@ -41,16 +42,17 @@ def get_group_music(vk):
     wget_music(download)
 
 
-def get_wall_music(vk):
+def get_wall_music(vk, group_id):
     download = []
     vk_max_count = 100
     music = vk.wall.get(owner_id=-(group_id), count=vk_max_count)
     songs_num = music[0]
     for i in xrange(0, songs_num / 100 + 1):
-        download += get_wall_music_more(vk, myoffset=i * vk_max_count)
+        download += get_wall_music_more(vk, group_id,
+                                        myoffset=i * vk_max_count)
 
 
-def get_wall_music_more(vk, myoffset=0):
+def get_wall_music_more(vk, group_id, myoffset=0):
     download = []
     music = vk.wall.get(owner_id=-(group_id), count=100, offset=myoffset)
     for i in music[1:]:
@@ -72,6 +74,16 @@ def wget_music(music_dict):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Downloads music from Vk.')
+    parser.add_argument('-w', '--wall', action="store_true",
+                        help='get songs from wall (default: group songs)')
+    parser.add_argument('group', type=int, help="vk group id")
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+    args = parser.parse_args()
+    wall = True if args.wall else False
+
     client_id = 4268618
     scope = 49151
 
@@ -79,8 +91,8 @@ def main():
     access_token = response['access_token']
 
     vk = vkontakte.API(token=access_token)
-    get_music(vk)
+    get_music(vk, wall, args.group)
 
 
 if __name__ == "__main__":
-        main()
+    main()
