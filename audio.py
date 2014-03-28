@@ -50,7 +50,7 @@ def get_wall_music(vk, group_id):
     vk_max_count = 100
     music = vk.wall.get(owner_id=-(group_id), count=vk_max_count)
     songs_num = music[0]
-    for i in xrange(0, songs_num / 100 + 1):
+    for i in xrange(0, songs_num / vk_max_count):
         download += get_wall_music_more(vk, group_id, songs_num,
                                         myoffset=i * vk_max_count)
 
