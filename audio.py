@@ -14,7 +14,8 @@ import argparse
 import sys
 
 config = ConfigParser.RawConfigParser()
-config.read('config.ini')
+config_folder = os.path.dirname(os.path.realpath(__file__))
+config.read(config_folder + '/config.ini')
 user_email = config.get('vk-auth', 'login')
 user_password = config.get('vk-auth', 'pass')
 counter = 0
