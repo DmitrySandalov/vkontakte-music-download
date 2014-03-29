@@ -74,7 +74,7 @@ def wget_music(music_dict, total):
     for song in music_dict:
         counter += 1
         if len(song['filename']) > 0 and len(song['url']) > 0 and not os.path.isfile(song['filename']):
-            print "[", counter, "/", total, "]", song['filename'], " <- ",song['url']
+            print "[", counter, "/", total, "]", song['filename']
             try:
                 urllib.urlretrieve(song['url'], song['filename'])
             except KeyboardInterrupt:
