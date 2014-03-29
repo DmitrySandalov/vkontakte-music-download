@@ -24,7 +24,8 @@ counter = 0
 def prettify(fname):
     fname = re.sub('[/]', '', fname)
     fname = re.sub('&amp;', '&', fname)
-    return fname
+    fname = re.sub('"', '=', fname)
+    return (fname[:100] + '..') if len(fname) > 100 else fname
 
 
 def get_music(vk, wall, group_id):
@@ -39,7 +40,7 @@ def get_group_music(vk, group_id):
     music = vk.audio.get(gid=group_id)
     songs_num = len(music)
     for i in music:
-        filename = prettify(i['artist'] + " - " + i['title'] + ".mp3")
+        filename = prettify(i['artist'] + " - " + i['title']) + ".mp3"
         download.append({'url': i['url'],
                          'filename': filename})
     wget_music(download, total=songs_num)
@@ -62,7 +63,7 @@ def get_wall_music_more(vk, group_id, songs_num, myoffset=0):
             for att in i['attachments']:
                 if 'audio' in att.keys():
                     filename = prettify(att['audio']['artist'] + " - " +
-                                        att['audio']['title'] + ".mp3")
+                                        att['audio']['title']) + ".mp3"
                     download.append({'url': att['audio']['url'],
                                      'filename': filename})
     wget_music(download, total=songs_num)
@@ -72,8 +73,8 @@ def wget_music(music_dict, total):
     global counter
     for song in music_dict:
         counter += 1
-        if not os.path.isfile(song['filename']):
-            print "[", counter, "/", total, "]", song['filename']
+        if len(song['filename']) > 0 and len(song['url']) > 0 and not os.path.isfile(song['filename']):
+            print "[", counter, "/", total, "]", song['filename'], " <- ",song['url']
             try:
                 urllib.urlretrieve(song['url'], song['filename'])
             except KeyboardInterrupt:
